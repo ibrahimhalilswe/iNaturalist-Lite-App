@@ -1,4 +1,4 @@
-﻿import { handleCors } from '../_lib/cors.js';
+import { handleCors } from '../_lib/cors.js';
 import { uploadImage } from '../_lib/cloudinary.js';
 import { validatePlantImage } from '../_lib/plantnet.js';
 import * as _shared from '../_lib/shared.js';
@@ -77,15 +77,15 @@ export default async function handler(req, res) {
   if (!filePart || !filePart.data.length) return res.status(400).json({ error: 'Dosya boÅŸ.' });
 
   if (filePart.data.length > MAX_IMAGE_SIZE_BYTES)
-    return res.status(400).json({ error: 'Dosya 5MB sÄ±nÄ±rÄ±nÄ± aÅŸÄ±yor.' });
+    return res.status(400).json({ error: 'Dosya 5MB sınırını aşıyor.' });
 
   const ext = path.extname(filePart.filename || '').toLowerCase();
   if (!ALLOWED_IMAGE_TYPES.some((t) => t.endsWith(ext.slice(1))))
-    return res.status(400).json({ error: 'Sadece jpg, jpeg, png, webp, gif uzantÄ±lÄ± dosyalar kabul edilir.' });
+    return res.status(400).json({ error: 'Sadece jpg, jpeg, png, webp, gif uzantılı dosyalar kabul edilir.' });
 
   const sig = FILE_MAGIC[ext];
   if (sig && !sig.every((b, i) => filePart.data[i] === b))
-    return res.status(400).json({ error: 'Dosya iÃ§eriÄŸi uzantÄ±sÄ±yla eÅŸleÅŸmiyor.' });
+    return res.status(400).json({ error: 'Dosya içeriği uzantısıyla eşleşmiyor.' });
 
   const validation = await validatePlantImage(filePart.data, filePart.contentType);
   if (!validation.isValid) return res.status(400).json({ error: validation.message });

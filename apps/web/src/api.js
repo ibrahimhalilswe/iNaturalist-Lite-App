@@ -16,7 +16,7 @@ async function request(method, path, body, isForm = false) {
   if (isForm) {
     bodyPayload = body;
   } else if (body) {
-    headers['Content-Type'] = 'application/json';
+    headers['Content-Type'] = 'application/json; charset=utf-8';
     bodyPayload = JSON.stringify(body);
   }
 

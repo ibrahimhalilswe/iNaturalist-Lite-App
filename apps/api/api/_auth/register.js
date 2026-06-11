@@ -1,4 +1,4 @@
-﻿import bcrypt from 'bcryptjs';
+import bcrypt from 'bcryptjs';
 import { handleCors } from '../_lib/cors.js';
 import { query } from '../_lib/db.js';
 import { generateToken } from '../_lib/auth.js';
@@ -19,7 +19,7 @@ export default async function handler(req, res) {
     [username.trim(), email.trim().toLowerCase()]
   );
   if (existing.rows.length > 0)
-    return res.status(400).json({ error: 'Bu kullanÄ±cÄ± adÄ± veya e-posta alÄ±nmÄ±ÅŸ.' });
+    return res.status(400).json({ error: 'Bu kullanıcı adı veya e-posta alınmış.' });
 
   const passwordHash = await bcrypt.hash(password, 12);
 
@@ -35,7 +35,7 @@ export default async function handler(req, res) {
   const mailError = await sendWelcomeEmail(user.email, user.username);
 
   const response = { success: true, token, username: user.username, email: user.email, badge: user.badge, avatarUrl: null };
-  if (mailError) response.message = `KayÄ±t baÅŸarÄ±lÄ± ancak mail gÃ¶nderimi baÅŸarÄ±sÄ±z: ${mailError}`;
+  if (mailError) response.message = `Kayıt başarılı ancak mail gönderimi başarısız: ${mailError}`;
 
   res.json(response);
 }

@@ -1,4 +1,4 @@
-﻿import { handleCors } from '../_lib/cors.js';
+import { handleCors } from '../_lib/cors.js';
 import { query } from '../_lib/db.js';
 import { requireAuth } from '../_lib/auth.js';
 import * as _shared from '../_lib/shared.js';
@@ -50,13 +50,18 @@ export default async function handler(req, res) {
     if (!authUser) return;
 
     const { name, description, photoUrl, lat = 0, lng = 0 } = req.body || {};
-    if (!name?.trim()) return res.status(400).json({ error: 'Bitki adÄ± gerekli.' });
-    if (name.trim().length > 100) return res.status(400).json({ error: 'Bitki adÄ± en fazla 100 karakter olabilir.' });
-    if (description && description.length > 1000) return res.status(400).json({ error: 'AÃ§Ä±klama en fazla 1000 karakter olabilir.' });
+    if (!name?.trim()) return res.status(400).json({ error: 'Bitki adı gerekli.' });
+    if (name.trim().length > 100) return res.status(400).json({ error: 'Bitki adı en fazla 100 karakter olabilir.' });
+    if (description && description.length > 1000) return res.status(400).json({ error: 'Açıklama en fazla 1000 karakter olabilir.' });
     const parsedLat = parseFloat(lat);
     const parsedLng = parseFloat(lng);
-    if (isNaN(parsedLat) || parsedLat < -90 || parsedLat > 90) return res.status(400).json({ error: 'GeÃ§ersiz enlem deÄŸeri.' });
-    if (isNaN(parsedLng) || parsedLng < -180 || parsedLng > 180) return res.status(400).json({ error: 'GeÃ§ersiz boylam deÄŸeri.' });
+    if (isNaN(parsedLat) || parsedLat < -90 || parsedLat > 90) return res.status(400).json({ error: 'Geçersiz enlem değeri.' });
+    if (isNaN(parsedLng) || parsedLng < -180 || parsedLng > 180) return res.status(400).json({ error: 'Geçersiz boylam değeri.' });
+
+    const userResult = await query('SELECT username, badge FROM users WHERE id = $1::int', [authUser.sub]);
+    const dbUser = userResult.rows[0];
+    const username = dbUser?.username || authUser.name || DEFAULT_USERNAME;
+    const badge = dbUser?.badge || DEFAULT_BADGE;
 
     await query(
       `INSERT INTO plants (name, description, photourl, username, userbadge, createdat, location)
@@ -65,14 +70,14 @@ export default async function handler(req, res) {
         name.trim(),
         description || null,
         photoUrl || null,
-        authUser.name || DEFAULT_USERNAME,
-        authUser.badge || DEFAULT_BADGE,
+        username,
+        badge,
         parsedLng,
         parsedLat,
       ]
     );
 
-    return res.json({ success: true, message: 'BaÅŸarÄ±yla kaydedildi.' });
+    return res.json({ success: true, message: 'Başarıyla kaydedildi.' });
   }
 
   res.status(405).end();

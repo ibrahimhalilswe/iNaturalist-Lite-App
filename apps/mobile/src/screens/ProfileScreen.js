@@ -58,9 +58,18 @@ export default function ProfileScreen({ navigation, onLogout }) {
         fetch(ENDPOINTS.likedPlants, { headers: { 'Authorization': `Bearer ${token}` } }),
         fetch(ENDPOINTS.userStats, { headers: { 'Authorization': `Bearer ${token}` } }),
       ]);
-      if (myRes.ok) setMyPlants(await myRes.json());
-      if (likedRes.ok) setLikedPlants(await likedRes.json());
-      if (statsRes.ok) setUserStats(await statsRes.json());
+      if (myRes.ok) {
+        const myData = await myRes.json();
+        setMyPlants(Array.isArray(myData) ? myData : (myData.plants || []));
+      }
+      if (likedRes.ok) {
+        const likedData = await likedRes.json();
+        setLikedPlants(Array.isArray(likedData) ? likedData : (likedData.plants || []));
+      }
+      if (statsRes.ok) {
+        const statsData = await statsRes.json();
+        setUserStats(statsData.error ? null : statsData);
+      }
     } catch (e) {
       console.log('Error fetching plants:', e);
     } finally {

@@ -1,4 +1,4 @@
-﻿import { handleCors } from './_lib/cors.js';
+import { handleCors } from './_lib/cors.js';
 import * as _shared from './_lib/shared.js';
 const { MAX_IMAGE_SIZE_BYTES } = _shared;
 import path from 'path';
@@ -85,6 +85,6 @@ export default async function handler(req, res) {
     const body = await response.text();
     res.status(response.status).setHeader('Content-Type', 'application/json').send(body);
   } catch (err) {
-    res.status(500).json({ error: 'PlantNet hatasÄ±: ' + err.message });
+    res.status(500).json({ error: 'PlantNet hatası: ' + err.message });
   }
 }

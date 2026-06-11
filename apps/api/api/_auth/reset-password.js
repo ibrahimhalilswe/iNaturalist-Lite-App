@@ -1,4 +1,4 @@
-﻿import bcrypt from 'bcryptjs';
+import bcrypt from 'bcryptjs';
 import { handleCors } from '../_lib/cors.js';
 import { query } from '../_lib/db.js';
 import { sendPasswordChangedEmail } from '../_lib/email.js';
@@ -24,7 +24,7 @@ export default async function handler(req, res) {
 
   if ((user.otp_attempts || 0) >= 5) {
     await query('UPDATE users SET otp_code = NULL, otp_expiry = NULL, otp_attempts = 0 WHERE id = $1::int', [user.id]);
-    return res.status(400).json({ error: 'Ã‡ok fazla yanlÄ±ÅŸ deneme. Yeni kod talep et.' });
+    return res.status(400).json({ error: 'Çok fazla yanlış deneme. Yeni kod talep et.' });
   }
 
   if (user.otp_code !== otpCode) {
@@ -40,7 +40,7 @@ export default async function handler(req, res) {
 
   const mailError = await sendPasswordChangedEmail(user.email, user.username);
   const response = { success: true };
-  if (mailError) response.message = `Åifre baÅŸarÄ±yla sÄ±fÄ±rlandÄ± ancak mail gÃ¶nderimi baÅŸarÄ±sÄ±z: ${mailError}`;
+  if (mailError) response.message = `Şifre başarıyla sıfırlandı ancak mail gönderimi başarısız: ${mailError}`;
 
   res.json(response);
 }

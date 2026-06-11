@@ -1,4 +1,4 @@
-﻿import bcrypt from 'bcryptjs';
+import bcrypt from 'bcryptjs';
 import { handleCors } from '../_lib/cors.js';
 import { query } from '../_lib/db.js';
 import { requireAuth } from '../_lib/auth.js';
@@ -18,10 +18,10 @@ export default async function handler(req, res) {
 
   const result = await query('SELECT * FROM users WHERE id = $1::int LIMIT 1', [authUser.sub]);
   const user = result.rows[0];
-  if (!user) return res.status(404).json({ error: 'KullanÄ±cÄ± bulunamadÄ±.' });
+  if (!user) return res.status(404).json({ error: 'Kullanıcı bulunamadı.' });
 
   if (!(await bcrypt.compare(oldPassword, user.password_hash)))
-    return res.status(400).json({ error: 'Mevcut ÅŸifreniz yanlÄ±ÅŸ.' });
+    return res.status(400).json({ error: 'Mevcut şifreniz yanlış.' });
 
   const passwordHash = await bcrypt.hash(newPassword, 12);
   await query('UPDATE users SET password_hash = $1 WHERE id = $2::int', [passwordHash, user.id]);

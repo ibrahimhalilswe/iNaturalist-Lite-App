@@ -1,6 +1,6 @@
 import { handleCors } from '../_lib/cors.js';
 import { query } from '../_lib/db.js';
-import { requireAuth } from '../_lib/auth.js';
+import { requireAuth, generateToken } from '../_lib/auth.js';
 
 export default async function handler(req, res) {
   if (handleCors(req, res)) return;
@@ -42,18 +42,31 @@ export default async function handler(req, res) {
       );
       if (existing.rows.length > 0)
         return res.status(400).json({ error: 'Bu kullanıcı adı alınmış.' });
+
+      const currentResult = await query('SELECT username FROM users WHERE id = $1::int', [authUser.sub]);
+      const oldUsername = currentResult.rows[0]?.username;
+
       await query('UPDATE users SET username = $1 WHERE id = $2::int', [username, authUser.sub]);
+
+      if (oldUsername && oldUsername !== username) {
+        await Promise.all([
+          query('UPDATE plants SET username = $1 WHERE username = $2', [username, oldUsername]),
+          query('UPDATE plant_comments SET username = $1 WHERE username = $2', [username, oldUsername]),
+          query('UPDATE plant_likes SET username = $1 WHERE username = $2', [username, oldUsername]),
+        ]);
+      }
     }
     if (avatarUrl) {
       await query('UPDATE users SET avatar_url = $1 WHERE id = $2::int', [avatarUrl, authUser.sub]);
     }
 
     const updated = await query(
-      'SELECT username, avatar_url FROM users WHERE id = $1::int',
+      'SELECT id, username, email, badge, avatar_url FROM users WHERE id = $1::int',
       [authUser.sub]
     );
     const u = updated.rows[0];
-    return res.json({ success: true, username: u.username, avatarUrl: u.avatar_url });
+    const newToken = generateToken(u);
+    return res.json({ success: true, username: u.username, avatarUrl: u.avatar_url, token: newToken });
   }
 
   res.status(405).end();

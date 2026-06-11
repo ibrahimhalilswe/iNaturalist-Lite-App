@@ -32,7 +32,7 @@ export async function query(sql, params = []) {
       headers: {
         apikey: supabaseKey,
         Authorization: `Bearer ${supabaseKey}`,
-        'Content-Type': 'application/json',
+        'Content-Type': 'application/json; charset=utf-8',
         'User-Agent': 'node/20',
       },
       body: JSON.stringify({ query_text: sql, params: args }),
