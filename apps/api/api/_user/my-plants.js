@@ -10,10 +10,12 @@ export default async function handler(req, res) {
   if (!authUser) return;
 
   const result = await query(
-    `SELECT p.id, p.name, p.description, p.photourl, p.username, p.userbadge, p.createdat,
+    `SELECT p.id, p.name, p.description, p.photourl, p.username,
+            COALESCE(u.badge, p.userbadge) AS userbadge, p.createdat,
             ST_Y(p.location::geometry) AS lat, ST_X(p.location::geometry) AS lng,
             COALESCE(lc.like_count, 0) AS like_count
      FROM plants p
+     LEFT JOIN users u ON u.username = p.username
      LEFT JOIN (SELECT plant_id, COUNT(*) AS like_count FROM plant_likes GROUP BY plant_id) lc
        ON lc.plant_id = p.id
      WHERE p.username = $1

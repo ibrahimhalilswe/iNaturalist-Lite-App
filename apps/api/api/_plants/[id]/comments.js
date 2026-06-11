@@ -11,7 +11,7 @@ export default async function handler(req, res) {
 
   if (req.method === 'GET') {
     const result = await query(
-      'SELECT username, text, created_at AS "createdAt" FROM plant_comments WHERE plant_id = $1 ORDER BY created_at ASC',
+      'SELECT username, text, created_at AS "createdAt" FROM plant_comments WHERE plant_id = $1::int ORDER BY created_at ASC',
       [plantId]
     );
     return res.json(result.rows);
@@ -26,7 +26,7 @@ export default async function handler(req, res) {
     if (text.trim().length > 500) return res.status(400).json({ error: 'Yorum en fazla 500 karakter olabilir.' });
 
     await query(
-      'INSERT INTO plant_comments (plant_id, username, text, created_at) VALUES ($1, $2, $3, NOW())',
+      'INSERT INTO plant_comments (plant_id, username, text, created_at) VALUES ($1::int, $2, $3, NOW())',
       [plantId, authUser.name, text.trim()]
     );
     return res.json({ success: true });

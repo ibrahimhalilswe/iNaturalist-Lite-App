@@ -11,10 +11,12 @@
       "resizeMode": "contain",
       "backgroundColor": "#1a4731"
     },
-    "assetBundlePatterns": ["**/*"],
+    "assetBundlePatterns": [
+      "**/*"
+    ],
     "ios": {
       "supportsTablet": true,
-      "bundleIdentifier": "com.yourname.inaturalistlite",
+      "bundleIdentifier": "com.ibrahimhalil.inaturalistlite",
       "infoPlist": {
         "NSCameraUsageDescription": "Bitki fotoğrafı çekmek için kamera erişimi gerekli.",
         "NSPhotoLibraryUsageDescription": "Galeriden fotoğraf seçmek için erişim gerekli.",
@@ -27,13 +29,14 @@
         "backgroundImage": "./assets/android-icon-background.png",
         "monochromeImage": "./assets/android-icon-monochrome.png"
       },
-      "package": "com.yourname.inaturalistlite",
+      "package": "com.ibrahimhalil.inaturalistlite",
       "permissions": [
-        "CAMERA",
-        "READ_EXTERNAL_STORAGE",
-        "WRITE_EXTERNAL_STORAGE",
-        "ACCESS_FINE_LOCATION",
-        "ACCESS_COARSE_LOCATION"
+        "android.permission.CAMERA",
+        "android.permission.READ_EXTERNAL_STORAGE",
+        "android.permission.WRITE_EXTERNAL_STORAGE",
+        "android.permission.ACCESS_FINE_LOCATION",
+        "android.permission.ACCESS_COARSE_LOCATION",
+        "android.permission.RECORD_AUDIO"
       ]
     },
     "web": {
@@ -53,6 +56,12 @@
         }
       ],
       "expo-image-picker"
-    ]
+    ],
+    "extra": {
+      "eas": {
+        "projectId": "5ad3d5c5-a10a-4bc3-a72e-0a410b0738a1"
+      }
+    },
+    "owner": "ibrahimhalil00"
   }
 }

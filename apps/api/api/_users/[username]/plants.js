@@ -1,22 +1,20 @@
-import { handleCors } from '../_lib/cors.js';
-import { query } from '../_lib/db.js';
-import { requireAuth } from '../_lib/auth.js';
+import { handleCors } from '../../_lib/cors.js';
+import { query } from '../../_lib/db.js';
 
 export default async function handler(req, res) {
   if (handleCors(req, res)) return;
   if (req.method !== 'GET') return res.status(405).end();
 
-  const authUser = requireAuth(req, res);
-  if (!authUser) return;
+  const { username } = req.query;
 
   const result = await query(
-    `SELECT p.id, p.name, p.description, p.photourl, p.username, p.userbadge, p.createdat,
+    `SELECT p.id, p.name, p.description, p.photourl, p.username,
+            COALESCE(u.badge, p.userbadge) AS userbadge, p.createdat,
             ST_Y(p.location::geometry) AS lat, ST_X(p.location::geometry) AS lng
-     FROM plant_likes l
-     JOIN plants p ON l.plant_id = p.id
-     WHERE l.username = $1
-     ORDER BY p.createdat DESC`,
-    [authUser.name]
+     FROM plants p
+     LEFT JOIN users u ON u.username = p.username
+     WHERE LOWER(p.username) = LOWER($1) ORDER BY p.createdat DESC`,
+    [username]
   );
 
   res.json(result.rows.map((r) => ({

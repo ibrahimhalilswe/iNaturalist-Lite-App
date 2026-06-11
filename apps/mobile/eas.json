@@ -11,12 +11,12 @@
       "distribution": "internal",
       "android": { "buildType": "apk" },
       "env": {
-        "EXPO_PUBLIC_API_BASE_URL": "https://your-api.vercel.app"
+        "EXPO_PUBLIC_API_BASE_URL": "https://inaturalist-lite-api.vercel.app"
       }
     },
     "production": {
       "env": {
-        "EXPO_PUBLIC_API_BASE_URL": "https://your-api.vercel.app"
+        "EXPO_PUBLIC_API_BASE_URL": "https://inaturalist-lite-api.vercel.app"
       }
     }
   },

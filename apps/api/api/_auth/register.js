@@ -1,10 +1,10 @@
-import bcrypt from 'bcryptjs';
+﻿import bcrypt from 'bcryptjs';
 import { handleCors } from '../_lib/cors.js';
 import { query } from '../_lib/db.js';
 import { generateToken } from '../_lib/auth.js';
 import { sendWelcomeEmail } from '../_lib/email.js';
-import _shared from '@inaturalist/shared';
-const { validateRegisterInput } = _shared;
+import * as _shared from '../_lib/shared.js';
+const { validateRegisterInput, DEFAULT_BADGE } = _shared;
 
 export default async function handler(req, res) {
   if (handleCors(req, res)) return;
@@ -19,14 +19,14 @@ export default async function handler(req, res) {
     [username.trim(), email.trim().toLowerCase()]
   );
   if (existing.rows.length > 0)
-    return res.status(400).json({ error: 'Bu kullanıcı adı veya e-posta alınmış.' });
+    return res.status(400).json({ error: 'Bu kullanÄ±cÄ± adÄ± veya e-posta alÄ±nmÄ±ÅŸ.' });
 
   const passwordHash = await bcrypt.hash(password, 12);
 
   const result = await query(
     `INSERT INTO users (username, email, password_hash, badge, created_at)
      VALUES ($1, $2, $3, $4, NOW()) RETURNING id, username, email, badge`,
-    [username.trim(), email.trim().toLowerCase(), passwordHash, '🌱']
+    [username.trim(), email.trim().toLowerCase(), passwordHash, DEFAULT_BADGE]
   );
 
   const user = result.rows[0];
@@ -35,7 +35,7 @@ export default async function handler(req, res) {
   const mailError = await sendWelcomeEmail(user.email, user.username);
 
   const response = { success: true, token, username: user.username, email: user.email, badge: user.badge, avatarUrl: null };
-  if (mailError) response.message = `Kayıt başarılı ancak mail gönderimi başarısız: ${mailError}`;
+  if (mailError) response.message = `KayÄ±t baÅŸarÄ±lÄ± ancak mail gÃ¶nderimi baÅŸarÄ±sÄ±z: ${mailError}`;
 
   res.json(response);
 }

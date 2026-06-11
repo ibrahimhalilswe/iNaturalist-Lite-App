@@ -14,13 +14,13 @@ export default async function handler(req, res) {
   if (isNaN(plantId) || isNaN(commentId)) return res.status(400).json({ error: 'Geçersiz ID.' });
 
   const result = await query(
-    'SELECT username FROM plant_comments WHERE id = $1 AND plant_id = $2',
+    'SELECT username FROM plant_comments WHERE id = $1::int AND plant_id = $2::int',
     [commentId, plantId]
   );
   const comment = result.rows[0];
   if (!comment) return res.status(404).json({ error: 'Yorum bulunamadı.' });
   if (comment.username !== authUser.name) return res.status(403).json({ error: 'Yetkisiz.' });
 
-  await query('DELETE FROM plant_comments WHERE id = $1', [commentId]);
+  await query('DELETE FROM plant_comments WHERE id = $1::int', [commentId]);
   res.json({ success: true });
 }

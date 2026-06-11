@@ -14,12 +14,12 @@ export default async function handler(req, res) {
     const authUser = requireAuth(req, res);
     if (!authUser) return;
 
-    const result = await query('SELECT username, photourl FROM plants WHERE id = $1', [plantId]);
+    const result = await query('SELECT username, photourl FROM plants WHERE id = $1::int', [plantId]);
     const plant = result.rows[0];
     if (!plant) return res.status(404).json({ error: 'Bitki bulunamadı.' });
     if (plant.username !== authUser.name) return res.status(403).json({ error: 'Yetkisiz.' });
 
-    await query('DELETE FROM plants WHERE id = $1', [plantId]);
+    await query('DELETE FROM plants WHERE id = $1::int', [plantId]);
     // Cloudinary'den fotoğrafı sil (hata olsa bile silmeye devam et)
     if (plant.photourl) deleteImage(plant.photourl).catch(() => {});
     return res.json({ success: true });

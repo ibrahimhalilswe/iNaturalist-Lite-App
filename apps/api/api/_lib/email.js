@@ -1,5 +1,5 @@
-import nodemailer from 'nodemailer';
-import _shared from '@inaturalist/shared';
+﻿import nodemailer from 'nodemailer';
+import * as _shared from './shared.js';
 const { welcomeEmail, otpEmail, passwordChangedEmail } = _shared;
 
 function createTransporter() {

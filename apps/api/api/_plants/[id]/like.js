@@ -11,12 +11,12 @@ export default async function handler(req, res) {
 
   if (req.method === 'GET') {
     const authUser = getAuthUser(req);
-    const countResult = await query('SELECT COUNT(*) FROM plant_likes WHERE plant_id = $1', [plantId]);
+    const countResult = await query('SELECT COUNT(*) FROM plant_likes WHERE plant_id = $1::int', [plantId]);
     const count = parseInt(countResult.rows[0].count);
     let liked = false;
     if (authUser) {
       const r = await query(
-        'SELECT 1 FROM plant_likes WHERE plant_id = $1 AND username = $2',
+        'SELECT 1 FROM plant_likes WHERE plant_id = $1::int AND username = $2',
         [plantId, authUser.name]
       );
       liked = r.rows.length > 0;
@@ -29,20 +29,20 @@ export default async function handler(req, res) {
     if (!authUser) return;
 
     const existing = await query(
-      'SELECT id FROM plant_likes WHERE plant_id = $1 AND username = $2',
+      'SELECT id FROM plant_likes WHERE plant_id = $1::int AND username = $2',
       [plantId, authUser.name]
     );
 
     let liked;
     if (existing.rows.length > 0) {
-      await query('DELETE FROM plant_likes WHERE plant_id = $1 AND username = $2', [plantId, authUser.name]);
+      await query('DELETE FROM plant_likes WHERE plant_id = $1::int AND username = $2', [plantId, authUser.name]);
       liked = false;
     } else {
-      await query('INSERT INTO plant_likes (plant_id, username) VALUES ($1, $2)', [plantId, authUser.name]);
+      await query('INSERT INTO plant_likes (plant_id, username) VALUES ($1::int, $2)', [plantId, authUser.name]);
       liked = true;
     }
 
-    const countResult = await query('SELECT COUNT(*) FROM plant_likes WHERE plant_id = $1', [plantId]);
+    const countResult = await query('SELECT COUNT(*) FROM plant_likes WHERE plant_id = $1::int', [plantId]);
     return res.json({ liked, count: parseInt(countResult.rows[0].count) });
   }
 

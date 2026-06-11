@@ -10,7 +10,7 @@ export default async function handler(req, res) {
 
   if (req.method === 'GET') {
     const result = await query(
-      'SELECT id, username, email, badge, avatar_url, created_at FROM users WHERE id = $1',
+      'SELECT id, username, email, badge, avatar_url, created_at FROM users WHERE id = $1::int',
       [authUser.sub]
     );
     const user = result.rows[0];
@@ -37,19 +37,19 @@ export default async function handler(req, res) {
 
     if (username) {
       const existing = await query(
-        'SELECT id FROM users WHERE username = $1 AND id != $2',
+        'SELECT id FROM users WHERE username = $1 AND id != $2::int',
         [username, authUser.sub]
       );
       if (existing.rows.length > 0)
         return res.status(400).json({ error: 'Bu kullanıcı adı alınmış.' });
-      await query('UPDATE users SET username = $1 WHERE id = $2', [username, authUser.sub]);
+      await query('UPDATE users SET username = $1 WHERE id = $2::int', [username, authUser.sub]);
     }
     if (avatarUrl) {
-      await query('UPDATE users SET avatar_url = $1 WHERE id = $2', [avatarUrl, authUser.sub]);
+      await query('UPDATE users SET avatar_url = $1 WHERE id = $2::int', [avatarUrl, authUser.sub]);
     }
 
     const updated = await query(
-      'SELECT username, avatar_url FROM users WHERE id = $1',
+      'SELECT username, avatar_url FROM users WHERE id = $1::int',
       [authUser.sub]
     );
     const u = updated.rows[0];

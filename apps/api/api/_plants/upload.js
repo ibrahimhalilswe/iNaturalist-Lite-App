@@ -1,9 +1,19 @@
-import { handleCors } from './_lib/cors.js';
-import _shared from '@inaturalist/shared';
-const { MAX_IMAGE_SIZE_BYTES } = _shared;
+﻿import { handleCors } from '../_lib/cors.js';
+import { uploadImage } from '../_lib/cloudinary.js';
+import { validatePlantImage } from '../_lib/plantnet.js';
+import * as _shared from '../_lib/shared.js';
+const { ALLOWED_IMAGE_TYPES, MAX_IMAGE_SIZE_BYTES } = _shared;
 import path from 'path';
 
 export const config = { api: { bodyParser: false } };
+
+const FILE_MAGIC = {
+  '.jpg':  [0xFF, 0xD8, 0xFF],
+  '.jpeg': [0xFF, 0xD8, 0xFF],
+  '.png':  [0x89, 0x50, 0x4E, 0x47],
+  '.gif':  [0x47, 0x49, 0x46],
+  '.webp': [0x52, 0x49, 0x46, 0x46],
+};
 
 async function readBody(req) {
   return new Promise((resolve, reject) => {
@@ -27,10 +37,10 @@ function parseMultipart(buffer, boundary) {
   while (true) {
     const idx = buffer.indexOf(sep, start);
     if (idx === -1) break;
-    const partStart = idx + sep.length + 2;
+    const partStart = idx + sep.length + 2; // skip \r\n
     const nextIdx = buffer.indexOf(sep, partStart);
     if (nextIdx === -1) break;
-    const partEnd = nextIdx - 2;
+    const partEnd = nextIdx - 2; // skip \r\n before boundary
 
     const headerEnd = buffer.indexOf('\r\n\r\n', partStart);
     if (headerEnd === -1 || headerEnd >= partEnd) { start = nextIdx; continue; }
@@ -63,28 +73,23 @@ export default async function handler(req, res) {
   const rawBody = await readBody(req);
   const parts = parseMultipart(rawBody, boundary);
 
-  const filePart = parts.find((p) => p.name === 'images' && p.filename);
-  if (!filePart || !filePart.data.length) return res.status(400).json({ error: 'Dosya boş.' });
+  const filePart = parts.find((p) => p.name === 'file' && p.filename);
+  if (!filePart || !filePart.data.length) return res.status(400).json({ error: 'Dosya boÅŸ.' });
 
   if (filePart.data.length > MAX_IMAGE_SIZE_BYTES)
-    return res.status(400).json({ error: 'Dosya 5MB\'dan büyük olamaz.' });
+    return res.status(400).json({ error: 'Dosya 5MB sÄ±nÄ±rÄ±nÄ± aÅŸÄ±yor.' });
 
-  const organPart = parts.find((p) => p.name === 'organs');
-  const organ = organPart?.data.toString().trim() || 'flower';
+  const ext = path.extname(filePart.filename || '').toLowerCase();
+  if (!ALLOWED_IMAGE_TYPES.some((t) => t.endsWith(ext.slice(1))))
+    return res.status(400).json({ error: 'Sadece jpg, jpeg, png, webp, gif uzantÄ±lÄ± dosyalar kabul edilir.' });
 
-  const apiKey = process.env.PLANTNET_API_KEY;
-  const url = `https://my-api.plantnet.org/v2/identify/all?api-key=${apiKey}&include-related-images=false&no-reject=false&lang=tr`;
+  const sig = FILE_MAGIC[ext];
+  if (sig && !sig.every((b, i) => filePart.data[i] === b))
+    return res.status(400).json({ error: 'Dosya iÃ§eriÄŸi uzantÄ±sÄ±yla eÅŸleÅŸmiyor.' });
 
-  try {
-    const blob = new Blob([filePart.data], { type: filePart.contentType || 'image/jpeg' });
-    const form = new FormData();
-    form.append('images', blob, filePart.filename || 'photo.jpg');
-    form.append('organs', organ);
+  const validation = await validatePlantImage(filePart.data, filePart.contentType);
+  if (!validation.isValid) return res.status(400).json({ error: validation.message });
 
-    const response = await fetch(url, { method: 'POST', body: form });
-    const body = await response.text();
-    res.status(response.status).setHeader('Content-Type', 'application/json').send(body);
-  } catch (err) {
-    res.status(500).json({ error: 'PlantNet hatası: ' + err.message });
-  }
+  const url = await uploadImage(filePart.data, ext);
+  res.json({ url });
 }

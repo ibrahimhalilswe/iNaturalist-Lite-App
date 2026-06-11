@@ -16,7 +16,7 @@ export default async function handler(req, res) {
   const otp = String(Math.floor(100000 + Math.random() * 900000));
   const expiry = new Date(Date.now() + 15 * 60 * 1000);
 
-  await query('UPDATE users SET otp_code = $1, otp_expiry = $2, otp_attempts = 0 WHERE id = $3', [otp, expiry, user.id]);
+  await query('UPDATE users SET otp_code = $1, otp_expiry = $2::timestamptz, otp_attempts = 0 WHERE id = $3::int', [otp, expiry, user.id]);
 
   const mailError = await sendOtpEmail(user.email, user.username, otp);
   res.json({ success: true, ...(mailError ? { mailError } : {}) });

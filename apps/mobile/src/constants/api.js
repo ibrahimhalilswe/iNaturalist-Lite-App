@@ -1,4 +1,4 @@
-export const API_BASE = process.env.EXPO_PUBLIC_API_BASE_URL || 'https://your-api.vercel.app';
+export const API_BASE = process.env.EXPO_PUBLIC_API_BASE_URL || 'https://inaturalist-lite-api.vercel.app';
 
 export const ENDPOINTS = {
   plants:         `${API_BASE}/api/plants`,
