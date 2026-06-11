@@ -1,0 +1,58 @@
+{
+  "expo": {
+    "name": "iNaturalist Lite",
+    "slug": "inaturalist-lite",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "icon": "./assets/icon.png",
+    "userInterfaceStyle": "light",
+    "splash": {
+      "image": "./assets/splash-icon.png",
+      "resizeMode": "contain",
+      "backgroundColor": "#1a4731"
+    },
+    "assetBundlePatterns": ["**/*"],
+    "ios": {
+      "supportsTablet": true,
+      "bundleIdentifier": "com.yourname.inaturalistlite",
+      "infoPlist": {
+        "NSCameraUsageDescription": "Bitki fotoğrafı çekmek için kamera erişimi gerekli.",
+        "NSPhotoLibraryUsageDescription": "Galeriden fotoğraf seçmek için erişim gerekli.",
+        "NSLocationWhenInUseUsageDescription": "Gözlem konumunu kaydetmek için konum erişimi gerekli."
+      }
+    },
+    "android": {
+      "adaptiveIcon": {
+        "foregroundImage": "./assets/android-icon-foreground.png",
+        "backgroundImage": "./assets/android-icon-background.png",
+        "monochromeImage": "./assets/android-icon-monochrome.png"
+      },
+      "package": "com.yourname.inaturalistlite",
+      "permissions": [
+        "CAMERA",
+        "READ_EXTERNAL_STORAGE",
+        "WRITE_EXTERNAL_STORAGE",
+        "ACCESS_FINE_LOCATION",
+        "ACCESS_COARSE_LOCATION"
+      ]
+    },
+    "web": {
+      "favicon": "./assets/favicon.png"
+    },
+    "plugins": [
+      [
+        "expo-camera",
+        {
+          "cameraPermission": "Bitki fotoğrafı çekmek için kamera erişimi gereklidir."
+        }
+      ],
+      [
+        "expo-location",
+        {
+          "locationAlwaysAndWhenInUsePermission": "Gözlem konumunu kaydetmek için konum erişimi gereklidir."
+        }
+      ],
+      "expo-image-picker"
+    ]
+  }
+}

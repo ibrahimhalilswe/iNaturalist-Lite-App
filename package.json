@@ -1,0 +1,27 @@
+{
+  "name": "inaturalist-lite",
+  "private": true,
+  "workspaces": {
+    "packages": [
+      "apps/*",
+      "packages/*"
+    ],
+    "nohoist": [
+      "**/expo",
+      "**/expo/**",
+      "**/react-native",
+      "**/react-native/**",
+      "**/@expo",
+      "**/@expo/**"
+    ]
+  },
+  "scripts": {
+    "postinstall": "node scripts/postinstall.js",
+    "dev:web": "yarn workspace @inaturalist/web dev",
+    "dev:api": "yarn workspace @inaturalist/api dev",
+    "dev:mobile": "yarn workspace @inaturalist/mobile start",
+    "build:web": "yarn workspace @inaturalist/web build",
+    "build:api": "yarn workspace @inaturalist/api build"
+  },
+  "packageManager": "yarn@1.22.22"
+}
